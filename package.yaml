@@ -1,27 +1,36 @@
-name:                project-users-microservice
+name:                users-microservice
 version:             0.1.0.0
-github:              "githubuser/project-users-microservice"
+github:              "hq9907/users-microservice"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+author:              "Qiao Huang"
+maintainer:          "qh2234@columbia.edu"
+copyright:           "2022 Qiao Huang"
 
 extra-source-files:
 - README.md
 - CHANGELOG.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
+# synopsis:            A simple microservice to manage users
 # category:            Web
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/project-users-microservice#readme>
+description:         Please see the README on GitHub at <https://github.com/hq9907/users-microservice#readme>
 
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- text
+- mtl
+- bytestring
+- monad-logger
+- transformers
+- resourcet
+- persistent
+- persistent-mysql
+- servant
 - servant-server
 - wai
 - warp
@@ -41,7 +50,7 @@ library:
   source-dirs: src
 
 executables:
-  project-users-microservice-exe:
+  users-microservice-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -50,10 +59,10 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - base
-    - project-users-microservice
+    - users-microservice
 
 tests:
-  project-users-microservice-test:
+  users-microservice-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -62,7 +71,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base
-    - project-users-microservice
+    - users-microservice
     - hspec
     - hspec-wai
     - hspec-wai-json

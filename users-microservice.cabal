@@ -4,14 +4,14 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           project-users-microservice
+name:           users-microservice
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/project-users-microservice#readme>
-homepage:       https://github.com/githubuser/project-users-microservice#readme
-bug-reports:    https://github.com/githubuser/project-users-microservice/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2022 Author name here
+description:    Please see the README on GitHub at <https://github.com/hq9907/users-microservice#readme>
+homepage:       https://github.com/hq9907/users-microservice#readme
+bug-reports:    https://github.com/hq9907/users-microservice/issues
+author:         Qiao Huang
+maintainer:     qh2234@columbia.edu
+copyright:      2022 Qiao Huang
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,56 +21,85 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/project-users-microservice
+  location: https://github.com/hq9907/users-microservice
 
 library
   exposed-modules:
-      Lib
+      App
+      DB
+      Model
   other-modules:
-      Paths_project_users_microservice
+      Paths_users_microservice
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-mysql
+    , resourcet
+    , servant
     , servant-server
+    , text
+    , transformers
     , wai
     , warp
   default-language: Haskell2010
 
-executable project-users-microservice-exe
+executable users-microservice-exe
   main-is: Main.hs
   other-modules:
-      Paths_project_users_microservice
+      Paths_users_microservice
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base
-    , project-users-microservice
+    , bytestring
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-mysql
+    , resourcet
+    , servant
     , servant-server
+    , text
+    , transformers
+    , users-microservice
     , wai
     , warp
   default-language: Haskell2010
 
-test-suite project-users-microservice-test
+test-suite users-microservice-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_project_users_microservice
+      Paths_users_microservice
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base
+    , bytestring
     , hspec
     , hspec-wai
     , hspec-wai-json
-    , project-users-microservice
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-mysql
+    , resourcet
+    , servant
     , servant-server
+    , text
+    , transformers
+    , users-microservice
     , wai
     , warp
   default-language: Haskell2010
