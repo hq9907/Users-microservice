@@ -16,12 +16,7 @@ where
 
 import DB (doMigration, runDB)
 import Database.Persist
-  ( Entity (Entity),
-    PersistStoreRead (get),
-    PersistStoreWrite (delete, insert),
-    selectList,
-  )
-import Model (Key (UserKey), User)
+import Model
 import Network.Wai.Handler.Warp (run)
 import Servant
 import System.Environment (getArgs)
@@ -42,10 +37,11 @@ startApp = do
 
 type Api =
   "users"
-    :> ( Get '[JSON] [User]
-           :<|> Capture "id" Int :> Get '[JSON] User
+    :> ( Get '[JSON] UsersRsp
+           :<|> Capture "id" Int :> Get '[JSON] UserRsp
            :<|> Capture "id" Int :> Delete '[JSON] ()
-           :<|> ReqBody '[JSON] User :> Post '[JSON] User
+           :<|> Capture "id" Int :> ReqBody '[JSON] User :> Put '[JSON] ()
+           :<|> ReqBody '[JSON] User :> Post '[JSON] UserRsp
        )
 
 server :: Server Api
@@ -53,29 +49,34 @@ server =
   userGET
     :<|> userGETById
     :<|> userDELETE
+    :<|> userPUT
     :<|> userPOST
   where
     userGET = selectUsers
     userGETById = selectUserById
     userDELETE = deleteUser
+    userPUT = updateUser
     userPOST = createUser
 
-selectUsers :: Handler [User]
+selectUsers :: Handler UsersRsp
 selectUsers = do
   userList <- runDB $ selectList [] []
-  return $ map (\(Entity _ u) -> u) userList
+  return $ toUsersRsp userList
 
-selectUserById :: Int -> Handler User
+selectUserById :: Int -> Handler UserRsp
 selectUserById userId = do
-  sqlResult <- runDB $ get $ UserKey userId
+  sqlResult <- runDB $ getEntity $ UserKey userId
   case sqlResult of
-    Just user -> return user
+    Just e -> return $ toUserRsp e
     Nothing -> throwError err404 {errBody = "User with ID not found."}
 
-createUser :: User -> Handler User
+createUser :: User -> Handler UserRsp
 createUser user = do
-  _ <- runDB $ insert user
-  return user
+  e <- runDB $ insertEntity user
+  return $ toUserRsp e
+
+updateUser :: Int -> User -> Handler ()
+updateUser userId user = do runDB $ replace (UserKey userId) user
 
 deleteUser :: Int -> Handler ()
 deleteUser userId = do runDB $ delete $ UserKey userId
