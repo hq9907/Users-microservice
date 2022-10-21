@@ -24,6 +24,7 @@ import Data.Aeson
     withObject,
     (.:),
   )
+import Data.String (IsString (fromString))
 import Data.Text (Text)
 import Database.Persist (Entity (Entity))
 import Database.Persist.Class.PersistEntity (Key)
@@ -35,7 +36,6 @@ import Database.Persist.TH
     sqlSettings,
   )
 import GHC.Generics
-import Servant (linkSegments)
 
 share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
@@ -98,7 +98,20 @@ toUserRsp (Entity key user) = UserRsp (UserRspData key user) links
   where
     links = []
 
-toUsersRsp :: [Entity User] -> UsersRsp
-toUsersRsp entities = UsersRsp (map toUserRsp entities) links
+toUsersRsp :: [Entity User] -> Int -> Int -> Int -> UsersRsp
+toUsersRsp entities total limit offset = UsersRsp (map toUserRsp entities) links
   where
-    links = []
+    links =
+      [ Link "prev" $ relativeRoute (-1),
+        Link "curr" $ relativeRoute 0,
+        Link "next" $ relativeRoute 1
+      ]
+    relativeRoute x = pageRoute total limit $ offset + (x * limit)
+
+pageRoute :: Int -> Int -> Int -> Text
+pageRoute total limit offset
+  | offset < 0 = ""
+  | offset >= total = ""
+  | otherwise =
+      fromString $
+        "/users/?limit=" ++ show limit ++ "&offset=" ++ show offset

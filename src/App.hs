@@ -15,7 +15,9 @@ module App
 where
 
 import DB (doMigration, runDB)
+import Data.Maybe (fromMaybe)
 import Database.Persist
+import Database.Persist.Class
 import Model
 import Network.Wai.Handler.Warp (run)
 import Servant
@@ -37,7 +39,9 @@ startApp = do
 
 type Api =
   "users"
-    :> ( Get '[JSON] UsersRsp
+    :> ( QueryParam "limit" Int
+           :> QueryParam "offset" Int
+           :> Get '[JSON] UsersRsp
            :<|> Capture "id" Int :> Get '[JSON] UserRsp
            :<|> Capture "id" Int :> Delete '[JSON] ()
            :<|> Capture "id" Int :> ReqBody '[JSON] User :> Put '[JSON] ()
@@ -58,10 +62,14 @@ server =
     userPUT = updateUser
     userPOST = createUser
 
-selectUsers :: Handler UsersRsp
-selectUsers = do
-  userList <- runDB $ selectList [] []
-  return $ toUsersRsp userList
+selectUsers :: Maybe Int -> Maybe Int -> Handler UsersRsp
+selectUsers mlimit moffset = do
+  userList <- runDB $ selectList [] [LimitTo limit, OffsetBy offset]
+  total <- runDB $ count ([] :: [Filter User])
+  return $ toUsersRsp userList total limit offset
+  where
+    limit = fromMaybe 20 mlimit
+    offset = fromMaybe 0 moffset
 
 selectUserById :: Int -> Handler UserRsp
 selectUserById userId = do
