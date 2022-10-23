@@ -44,17 +44,20 @@ User
     Id Int Primary Unique default=generate_user_id() sql=user_id
     firstName Text
     lastName Text
-    deriving Show Generic
+    deriving Show Generic Eq
 |]
 
 data Link = Link {rel :: Text, href :: Text}
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 data UserRspData = UserRspData (Key User) User
+  deriving (Show, Eq)
 
 data UserRsp = UserRsp UserRspData [Link]
+  deriving (Show, Eq)
 
 data UsersRsp = UsersRsp [UserRsp] [Link]
+  deriving (Show, Eq)
 
 instance ToJSON User where
   toJSON (User firstName lastName) =
@@ -96,7 +99,14 @@ instance ToJSON UsersRsp where
 toUserRsp :: Entity User -> UserRsp
 toUserRsp (Entity key user) = UserRsp (UserRspData key user) links
   where
-    links = []
+    links =
+      [ Link "email" $ contactRoute "email",
+        Link "address" $ contactRoute "address",
+        Link "phone" $ contactRoute "phone",
+        Link "carts" cartRoute
+      ]
+    contactRoute x = fromString $ "/contact/" ++ show key ++ "/" ++ x
+    cartRoute = fromString $ "/carts/" ++ show key
 
 toUsersRsp :: [Entity User] -> Int -> Int -> Int -> UsersRsp
 toUsersRsp entities total limit offset = UsersRsp (map toUserRsp entities) links
