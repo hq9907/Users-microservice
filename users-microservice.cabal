@@ -35,6 +35,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
+    , aeson-qq
     , base >=4.7 && <5
     , bytestring
     , monad-logger
@@ -59,6 +60,7 @@ executable users-microservice-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-qq
     , base
     , bytestring
     , monad-logger
@@ -79,12 +81,15 @@ test-suite users-microservice-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      AppSpec
+      ModelSpec
       Paths_users_microservice
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-qq
     , base
     , bytestring
     , hspec

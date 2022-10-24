@@ -26,8 +26,10 @@ import Data.Aeson
   )
 import Data.String (IsString (fromString))
 import Data.Text (Text)
-import Database.Persist (Entity (Entity))
-import Database.Persist.Class.PersistEntity (Key)
+import Database.Persist
+import Database.Persist.Class
+import Database.Persist.Class.PersistEntity
+import Database.Persist.Sql
 import Database.Persist.TH
   ( mkMigrate,
     mkPersist,
@@ -50,7 +52,7 @@ User
 data Link = Link {rel :: Text, href :: Text}
   deriving (Show, Generic, Eq)
 
-data UserRspData = UserRspData (Key User) User
+data UserRspData = UserRspData Int User
   deriving (Show, Eq)
 
 data UserRsp = UserRsp UserRspData [Link]
@@ -75,9 +77,9 @@ instance FromJSON User where
 instance ToJSON Link
 
 instance ToJSON UserRspData where
-  toJSON (UserRspData key (User firstName lastName)) =
+  toJSON (UserRspData userId (User firstName lastName)) =
     object
-      [ "user_id" .= key,
+      [ "user_id" .= userId,
         "first_name" .= firstName,
         "last_name" .= lastName
       ]
@@ -97,16 +99,17 @@ instance ToJSON UsersRsp where
       ]
 
 toUserRsp :: Entity User -> UserRsp
-toUserRsp (Entity key user) = UserRsp (UserRspData key user) links
+toUserRsp (Entity key user) = UserRsp (UserRspData userId user) links
   where
     links =
       [ Link "email" $ contactRoute "email",
-        Link "address" $ contactRoute "address",
         Link "phone" $ contactRoute "phone",
+        Link "address" $ contactRoute "address",
         Link "carts" cartRoute
       ]
-    contactRoute x = fromString $ "/contact/" ++ show key ++ "/" ++ x
-    cartRoute = fromString $ "/carts/" ++ show key
+    contactRoute x = fromString $ "/contact/" ++ show userId ++ "/" ++ x
+    cartRoute = fromString $ "/carts/" ++ show userId
+    userId = unUserKey key
 
 toUsersRsp :: [Entity User] -> Int -> Int -> Int -> UsersRsp
 toUsersRsp entities total limit offset = UsersRsp (map toUserRsp entities) links
@@ -116,12 +119,14 @@ toUsersRsp entities total limit offset = UsersRsp (map toUserRsp entities) links
         Link "curr" $ relativeRoute 0,
         Link "next" $ relativeRoute 1
       ]
-    relativeRoute x = pageRoute total limit $ offset + (x * limit)
+    relativeRoute = relativePageRoute total limit offset
 
-pageRoute :: Int -> Int -> Int -> Text
-pageRoute total limit offset
-  | offset < 0 = ""
-  | offset >= total = ""
-  | otherwise =
-      fromString $
-        "/users/?limit=" ++ show limit ++ "&offset=" ++ show offset
+relativePageRoute :: Int -> Int -> Int -> Int -> Text
+relativePageRoute total limit offset page = pageRoute $ offset + (page * limit)
+  where
+    pageRoute newOffset
+      | newOffset < 0 = ""
+      | newOffset >= total = ""
+      | otherwise =
+          fromString $
+            "/users/?limit=" ++ show limit ++ "&offset=" ++ show newOffset

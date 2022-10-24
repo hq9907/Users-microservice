@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/hq99
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- aeson-qq
 - text
 - mtl
 - bytestring
