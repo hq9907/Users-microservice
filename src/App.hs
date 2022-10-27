@@ -21,6 +21,7 @@ import Database.Persist.Class
 import Model
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
+import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Network.Wai.Middleware.Servant.Options
 import Servant
 import System.Environment (getArgs)
@@ -32,11 +33,12 @@ app :: Application
 app =
   cors (const $ Just policy) $
     provideOptions apiProxy $
-      serve apiProxy server
+      logStdoutDev $
+        serve apiProxy server
   where
     policy =
       simpleCorsResourcePolicy
-        { corsRequestHeaders = ["content-type"]
+        { corsMethods = ["GET", "POST", "PUT", "DELETE"]
         }
 
 startApp :: IO ()
