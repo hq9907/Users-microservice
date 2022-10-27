@@ -20,6 +20,7 @@ import Database.Persist
 import Database.Persist.Class
 import Model
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Cors
 import Servant
 import System.Environment (getArgs)
 
@@ -27,7 +28,7 @@ apiProxy :: Proxy Api
 apiProxy = Proxy
 
 app :: Application
-app = serve apiProxy server
+app = simpleCors $ serve apiProxy server
 
 startApp :: IO ()
 startApp = do
