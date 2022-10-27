@@ -43,6 +43,7 @@ library
     , persistent-mysql
     , resourcet
     , servant
+    , servant-options
     , servant-server
     , text
     , transformers
@@ -68,6 +69,7 @@ executable users-microservice-exe
     , persistent-mysql
     , resourcet
     , servant
+    , servant-options
     , servant-server
     , text
     , transformers
@@ -101,6 +103,7 @@ test-suite users-microservice-test
     , persistent-mysql
     , resourcet
     , servant
+    , servant-options
     , servant-server
     , text
     , transformers
