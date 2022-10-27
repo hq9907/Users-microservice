@@ -38,7 +38,8 @@ app =
   where
     policy =
       simpleCorsResourcePolicy
-        { corsMethods = ["GET", "POST", "PUT", "DELETE"]
+        { corsMethods = ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
+        , corsRequestHeaders = ["Authorization", "Content-Type"]
         }
 
 startApp :: IO ()
