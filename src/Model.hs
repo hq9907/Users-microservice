@@ -17,11 +17,14 @@
 
 module Model
   ( Key (UserKey),
-    User,
-    UserRsp,
-    UsersRsp,
+    Link (Link),
+    User (User),
+    UserRsp (UserRsp),
+    UsersRsp (UsersRsp),
+    UserRspData (UserRspData),
     toUserRsp,
     toUsersRsp,
+    relativePageRoute,
     migrateAll,
   )
 where

@@ -5,7 +5,7 @@ module AppSpec (spec) where
 
 import App (app)
 import Test.Hspec (Spec, describe, it)
-import Test.Hspec.Wai (get, pending, shouldRespondWith, with)
+import Test.Hspec.Wai
 
 spec :: Spec
 spec = with (return app) $ do
