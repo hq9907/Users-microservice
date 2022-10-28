@@ -17,8 +17,14 @@ where
 import DB (doMigration, runDB)
 import Data.Maybe (fromMaybe)
 import Database.Persist
-import Database.Persist.Class
 import Model
+  ( Key (UserKey),
+    User,
+    UserRsp,
+    UsersRsp,
+    toUserRsp,
+    toUsersRsp,
+  )
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)
@@ -38,8 +44,8 @@ app =
   where
     policy =
       simpleCorsResourcePolicy
-        { corsMethods = ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
-        , corsRequestHeaders = ["Authorization", "Content-Type"]
+        { corsMethods = ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
+          corsRequestHeaders = ["Authorization", "Content-Type"]
         }
 
 startApp :: IO ()

@@ -13,8 +13,18 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 
-module Model where
+module Model
+  ( Key (UserKey),
+    User,
+    UserRsp,
+    UsersRsp,
+    toUserRsp,
+    toUsersRsp,
+    migrateAll,
+  )
+where
 
 import Data.Aeson
   ( FromJSON (parseJSON),
@@ -27,9 +37,6 @@ import Data.Aeson
 import Data.String (IsString (fromString))
 import Data.Text (Text)
 import Database.Persist
-import Database.Persist.Class
-import Database.Persist.Class.PersistEntity
-import Database.Persist.Sql
 import Database.Persist.TH
   ( mkMigrate,
     mkPersist,
