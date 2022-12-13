@@ -16,12 +16,14 @@ where
 
 import DB (doMigration, runDB)
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
 import Database.Persist
 import Model
   ( Key (UserKey),
     User,
     UserRsp,
     UsersRsp,
+    googleIdFilter,
     toUserRsp,
     toUsersRsp,
   )
@@ -58,7 +60,8 @@ startApp = do
 
 type Api =
   "users"
-    :> ( QueryParam "limit" Int
+    :> ( QueryParam "google_id" Text
+           :> QueryParam "limit" Int
            :> QueryParam "offset" Int
            :> Get '[JSON] UsersRsp
            :<|> Capture "id" Int :> Get '[JSON] UserRsp
@@ -81,14 +84,15 @@ server =
     userPUT = updateUser
     userPOST = createUser
 
-selectUsers :: Maybe Int -> Maybe Int -> Handler UsersRsp
-selectUsers mlimit moffset = do
-  userList <- runDB $ selectList [] [LimitTo limit, OffsetBy offset]
-  total <- runDB $ count ([] :: [Filter User])
+selectUsers :: Maybe Text -> Maybe Int -> Maybe Int -> Handler UsersRsp
+selectUsers mgid mlimit moffset = do
+  userList <- runDB $ selectList selector [LimitTo limit, OffsetBy offset]
+  total <- runDB $ count (selector :: [Filter User])
   return $ toUsersRsp userList total limit offset
   where
     limit = fromMaybe 20 mlimit
     offset = fromMaybe 0 moffset
+    selector = googleIdFilter mgid
 
 selectUserById :: Int -> Handler UserRsp
 selectUserById userId = do

@@ -22,6 +22,7 @@ module Model
     UserRsp (UserRsp),
     UsersRsp (UsersRsp),
     UserRspData (UserRspData),
+    googleIdFilter,
     toUserRsp,
     toUsersRsp,
     relativePageRoute,
@@ -54,8 +55,10 @@ share
   [persistLowerCase|
 User
     Id Int Primary Unique default=generate_user_id() sql=user_id
+    googleId Text
     firstName Text
     lastName Text
+    picture Text
     deriving Show Generic Eq
 |]
 
@@ -72,26 +75,31 @@ data UsersRsp = UsersRsp [UserRsp] [Link]
   deriving (Show, Eq)
 
 instance ToJSON User where
-  toJSON (User firstName lastName) =
+  toJSON (User googleId firstName lastName picture) =
     object
-      [ "first_name" .= firstName,
-        "last_name" .= lastName
+      [ "google_id" .= googleId,
+        "first_name" .= firstName,
+        "last_name" .= lastName,
+        "picture" .= picture
       ]
 
 instance FromJSON User where
   parseJSON = withObject "User" $ \obj -> do
+    googleId <- obj .: "google_id"
     firstName <- obj .: "first_name"
     lastName <- obj .: "last_name"
-    return $ User firstName lastName
+    picture <- obj .: "picture"
+    return $ User googleId firstName lastName picture
 
 instance ToJSON Link
 
 instance ToJSON UserRspData where
-  toJSON (UserRspData userId (User firstName lastName)) =
+  toJSON (UserRspData userId (User googleId firstName lastName picture)) =
     object
       [ "user_id" .= userId,
         "first_name" .= firstName,
-        "last_name" .= lastName
+        "last_name" .= lastName,
+        "picture" .= picture
       ]
 
 instance ToJSON UserRsp where
@@ -140,3 +148,7 @@ relativePageRoute total limit offset page = pageRoute $ offset + (page * limit)
       | otherwise =
           fromString $
             "/users/?limit=" ++ show limit ++ "&offset=" ++ show newOffset
+
+googleIdFilter :: Maybe Text -> [Filter User]
+googleIdFilter (Just gid) = [UserGoogleId ==. gid]
+googleIdFilter Nothing = []
