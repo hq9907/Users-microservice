@@ -18,11 +18,13 @@
 module Model
   ( Key (UserKey),
     Link (Link),
+    Profile (Profile),
     User (User),
     UserRsp (UserRsp),
     UsersRsp (UsersRsp),
     UserRspData (UserRspData),
     googleIdFilter,
+    profileUpdate,
     toUserRsp,
     toUsersRsp,
     relativePageRoute,
@@ -62,6 +64,9 @@ User
     deriving Show Generic Eq
 |]
 
+data Profile = Profile {firstName :: Text, lastName :: Text}
+  deriving (Show, Generic, Eq)
+
 data Link = Link {rel :: Text, href :: Text}
   deriving (Show, Generic, Eq)
 
@@ -91,10 +96,16 @@ instance FromJSON User where
     picture <- obj .: "picture"
     return $ User googleId firstName lastName picture
 
+instance FromJSON Profile where
+  parseJSON = withObject "Profile" $ \obj -> do
+    firstName <- obj .: "first_name"
+    lastName <- obj .: "last_name"
+    return $ Profile firstName lastName
+
 instance ToJSON Link
 
 instance ToJSON UserRspData where
-  toJSON (UserRspData userId (User googleId firstName lastName picture)) =
+  toJSON (UserRspData userId (User _ firstName lastName picture)) =
     object
       [ "user_id" .= userId,
         "first_name" .= firstName,
@@ -152,3 +163,6 @@ relativePageRoute total limit offset page = pageRoute $ offset + (page * limit)
 googleIdFilter :: Maybe Text -> [Filter User]
 googleIdFilter (Just gid) = [UserGoogleId ==. gid]
 googleIdFilter Nothing = []
+
+profileUpdate :: Profile -> [Update User]
+profileUpdate (Profile firstName lastName) = [UserFirstName =. firstName, UserLastName =. lastName]

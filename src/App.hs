@@ -20,10 +20,12 @@ import Data.Text (Text)
 import Database.Persist
 import Model
   ( Key (UserKey),
+    Profile,
     User,
     UserRsp,
     UsersRsp,
     googleIdFilter,
+    profileUpdate,
     toUserRsp,
     toUsersRsp,
   )
@@ -66,7 +68,7 @@ type Api =
            :> Get '[JSON] UsersRsp
            :<|> Capture "id" Int :> Get '[JSON] UserRsp
            :<|> Capture "id" Int :> Delete '[JSON] ()
-           :<|> Capture "id" Int :> ReqBody '[JSON] User :> Put '[JSON] ()
+           :<|> Capture "id" Int :> ReqBody '[JSON] Profile :> Put '[JSON] ()
            :<|> ReqBody '[JSON] User :> Post '[JSON] UserRsp
        )
 
@@ -106,8 +108,8 @@ createUser user = do
   e <- runDB $ insertEntity user
   return $ toUserRsp e
 
-updateUser :: Int -> User -> Handler ()
-updateUser userId user = do runDB $ replace (UserKey userId) user
+updateUser :: Int -> Profile -> Handler ()
+updateUser userId profile = do runDB $ update (UserKey userId) $ profileUpdate profile
 
 deleteUser :: Int -> Handler ()
 deleteUser userId = do runDB $ delete $ UserKey userId
